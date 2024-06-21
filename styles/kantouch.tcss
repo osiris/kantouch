@@ -1,0 +1,38 @@
+Screen {
+    color: #9fc800;
+    background: #000000;
+}
+
+Label {
+    width: 1fr;
+    color: #ffffff;
+    background: #9fc800;
+}
+
+#todo {
+    color: #ff0000;
+    background: #000000;
+}
+
+#wip {
+    color: #00ff00;
+    background: #000000;
+}
+
+#hold {
+    color: #cccccc;
+    background: #000000;
+}
+
+#done {
+    color: #ffff00;
+    background: #000000;
+}
+
+#topbar {
+    dock: top;
+    width: 100%;
+    height: 1;
+    color: #cfff00;
+    background: #000000;
+}
