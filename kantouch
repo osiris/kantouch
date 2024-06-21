@@ -27,7 +27,7 @@ from textual.screen import ModalScreen
 from textual.containers import Horizontal
 
 
-class WriteOutput():
+class WriteOutput:
     """Write output to file."""
 
 
@@ -77,19 +77,22 @@ class Draggable(Static):
 
     def card_column(self, offset_x) -> None:
         if offset_x >= 119:
-            return len(self.segments)-1
+            return len(self.segments) - 1
         else:
-            for k,v in enumerate(self.segments):
+            for k, v in enumerate(self.segments):
                 if offset_x >= self.segments[k]:
-                    if offset_x <= self.segments[k+1]:
-                        #self.update(str(k))
+                    if offset_x <= self.segments[k + 1]:
+                        # self.update(str(k))
                         return k
 
     def card_background(self, column) -> None:
-        background = '#cfff00'
-        if column == 1: background = '#ff0000'
-        if column == 2: background = '#ffff00'
-        if column  > 3: background = '#00ff00'
+        background = "#cfff00"
+        if column == 1:
+            background = "#ff0000"
+        if column == 2:
+            background = "#ffff00"
+        if column > 3:
+            background = "#00ff00"
         self.styles.background = background
 
     def card_attributes(self, offset_x, y) -> None:
@@ -98,7 +101,7 @@ class Draggable(Static):
         self.card_background(col_number)
 
     def on_mount(self) -> None:
-        offset_x = (self.col_number - 1 ) * self.col_width
+        offset_x = (self.col_number - 1) * self.col_width
         self.styles.offset = (offset_x, 1)
         self.card_attributes(self.col_number * self.col_width, 1)
 
@@ -114,10 +117,7 @@ class Draggable(Static):
 class KanTouch(App):
     size_width = 0
     CSS_PATH = "styles/kantouch.tcss"
-    BINDINGS = [
-        ("q", "request_quit", "Quit"),
-        ("w", "write", "Write")
-    ]
+    BINDINGS = [("q", "request_quit", "Quit"), ("w", "write", "Write")]
 
     def action_write(self) -> None:
         """Action to write output."""
@@ -138,11 +138,11 @@ class KanTouch(App):
 
     def get_col_width(self, total_status):
         """Get Column Width."""
-        return round(self.get_width()/total_status)
+        return round(self.get_width() / total_status)
 
     def compose(self) -> ComposeResult:
         """Draw Kanban Board."""
-        status = ['TODO', 'WIP', 'HOLD', 'DONE']
+        status = ["TODO", "WIP", "HOLD", "DONE"]
         total_status = len(status)
         col_width = self.get_col_width(total_status)
         segments = list(self.get_col_ranges(col_width))
@@ -157,11 +157,13 @@ class KanTouch(App):
             id="topbar",
         )
         # FIXME Read tasks from Markdown from stdin
-        yield Draggable(' TASK 1     ', 1, col_width, total_status, segments)
-        yield Draggable(' TASK 2     ', 2, col_width, total_status, segments)
-        yield Draggable(' TASK 3     ', 3, col_width, total_status, segments)
-        yield Draggable(' TASK 4     ', 4, col_width, total_status, segments)
+        yield Draggable(" TASK 1     ", 1, col_width, total_status, segments)
+        yield Draggable(" TASK 2     ", 2, col_width, total_status, segments)
+        yield Draggable(" TASK 3     ", 3, col_width, total_status, segments)
+        yield Draggable(" TASK 4     ", 4, col_width, total_status, segments)
+        yield Draggable(" TASK 5     ", 3, col_width, total_status, segments)
         yield Footer()
+
 
 if __name__ == "__main__":
     app = KanTouch()
