@@ -3,6 +3,19 @@
 _TUI_ program for managing _Kanban_ board with _TouchScreen_ and
 _Markdown_ support
 
+## Setup for Develop
+
+~~~bash
+
+mkdir -p ~/git/osiux
+git clone https://gitlab.com/osiux/kantouch ~/git/osiux/kantouch
+cd ~/git/osiux/kantouch
+git checkout develop
+make venv_install_all
+make run
+
+~~~
+
 ## License
 
 _GNU General Public License, GPLv3._
