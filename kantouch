@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+
+# This script comes with ABSOLUTELY NO WARRANTY, use at own risk
+# Copyright (C) 2024 Osiris Alejandro Gomez <osiux@osiux.com>
+# Copyright (C) 2024 Osiris Alejandro Gomez <osiris@gcoop.coop>
+# Copyright (C) 2024 José Luis Di Biase <josx@camba.coop>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+from textual import events
+from textual.app import App, ComposeResult
+from textual.geometry import Offset
+from textual.reactive import reactive
+from textual.widgets import Button, Static, Header, Footer, Label
+from textual.screen import ModalScreen
+from textual.containers import Horizontal
+
+
+class WriteOutput():
+    """Write output to file."""
+
+
+class QuitScreen(ModalScreen):
+    """Screen with a dialog to quit."""
+
+
+class Draggable(Static):
+    DEFAULT_CSS = """
+    Draggable {
+        width: auto;
+        color: #000000;
+        background: #cfff00;
+        offset: 0 1;
+    }
+    """
+
+    mouse_at_drag_start: reactive[Offset | None] = reactive(None)
+    offset_at_drag_start: reactive[Offset | None] = reactive(None)
+
+    def __init__(self, renderable, col_number, col_width, col_total, segments):
+        Static.__init__(self, renderable)
+        self.col_number = col_number
+        self.col_width = col_width
+        self.col_total = col_total
+        self.segments = segments
+
+    def on_mouse_down(self, event: events.MouseDown) -> None:
+        self.mouse_at_drag_start = event.screen_offset
+        self.offset_at_drag_start = Offset(
+            round(self.styles.offset.x.value),
+            round(self.styles.offset.y.value),
+        )
+        self.capture_mouse()
+
+    def on_mouse_move(self, event: events.MouseMove) -> None:
+        if (
+            self.mouse_at_drag_start is not None
+            and self.offset_at_drag_start is not None
+        ):
+            x = self.offset_at_drag_start.x + (
+                event.screen_x - self.mouse_at_drag_start.x
+            )
+            y = self.offset_at_drag_start.y
+
+            self.styles.offset = (x, y)
+
+    def card_column(self, offset_x) -> None:
+        if offset_x >= 119:
+            return len(self.segments)-1
+        else:
+            for k,v in enumerate(self.segments):
+                if offset_x >= self.segments[k]:
+                    if offset_x <= self.segments[k+1]:
+                        #self.update(str(k))
+                        return k
+
+    def card_background(self, column) -> None:
+        background = '#cfff00'
+        if column == 1: background = '#ff0000'
+        if column == 2: background = '#ffff00'
+        if column  > 3: background = '#00ff00'
+        self.styles.background = background
+
+    def card_attributes(self, offset_x, y) -> None:
+        col_number = self.card_column(offset_x)
+        self.styles.offset = (col_number * self.col_width, y)
+        self.card_background(col_number)
+
+    def on_mount(self) -> None:
+        offset_x = (self.col_number - 1 ) * self.col_width
+        self.styles.offset = (offset_x, 1)
+        self.card_attributes(self.col_number * self.col_width, 1)
+
+    def on_mouse_up(self, event: events.MouseUp) -> None:
+        self.mouse_at_drag_start = None
+        self.release_mouse()
+        self.update(self.renderable + str(event.screen_x))
+        y = self.offset_at_drag_start.y
+        self.card_attributes(event.screen_x, y)
+        event.stop()
+
+
+class KanTouch(App):
+    size_width = 0
+    CSS_PATH = "styles/kantouch.tcss"
+    BINDINGS = [
+        ("q", "request_quit", "Quit"),
+        ("w", "write", "Write")
+    ]
+
+    def action_write(self) -> None:
+        """Action to write output."""
+        self.push_screen(WriteOutput())
+
+    def action_request_quit(self) -> None:
+        """Action to display the quit dialog."""
+        self.push_screen(QuitScreen())
+
+    def get_width(self):
+        """Get Screen Width."""
+        size_width, size_height = self.size
+        return size_width
+
+    def get_col_ranges(self, col_width):
+        """Get Columns Ranges."""
+        return range(0, self.get_width(), col_width)
+
+    def get_col_width(self, total_status):
+        """Get Column Width."""
+        return round(self.get_width()/total_status)
+
+    def compose(self) -> ComposeResult:
+        """Draw Kanban Board."""
+        status = ['TODO', 'WIP', 'HOLD', 'DONE']
+        total_status = len(status)
+        col_width = self.get_col_width(total_status)
+        segments = list(self.get_col_ranges(col_width))
+
+        yield Horizontal(
+            # FIXME Read column names from Markdown headers
+            # FIXME Convert column names to IDs
+            Label(" TODO ", id="todo"),
+            Label(" WIP  ", id="wip"),
+            Label(" HOLD ", id="hold"),
+            Label(" DONE ", id="done"),
+            id="topbar",
+        )
+        # FIXME Read tasks from Markdown from stdin
+        yield Draggable(' TASK 1     ', 1, col_width, total_status, segments)
+        yield Draggable(' TASK 2     ', 2, col_width, total_status, segments)
+        yield Draggable(' TASK 3     ', 3, col_width, total_status, segments)
+        yield Draggable(' TASK 4     ', 4, col_width, total_status, segments)
+        yield Footer()
+
+if __name__ == "__main__":
+    app = KanTouch()
+    app.run()
