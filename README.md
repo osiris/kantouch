@@ -3,6 +3,8 @@
 _TUI_ program for managing _Kanban_ board with _TouchScreen_ and
 _Markdown_ support
 
+![](img/kantouch-markdown-vs-kanban.png)
+
 ## Setup for Develop
 
 ~~~bash
