@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+import re
 from textual import events
 from textual.app import App, ComposeResult
 from textual.geometry import Offset
@@ -82,7 +84,7 @@ class Draggable(Static):
             for k, v in enumerate(self.segments):
                 if offset_x >= self.segments[k]:
                     if offset_x <= self.segments[k + 1]:
-                        # self.update(str(k))
+                        # DEBUG self.update(str(k))
                         return k
 
     def card_background(self, column) -> None:
@@ -108,7 +110,7 @@ class Draggable(Static):
     def on_mouse_up(self, event: events.MouseUp) -> None:
         self.mouse_at_drag_start = None
         self.release_mouse()
-        self.update(self.renderable + str(event.screen_x))
+        # DEBUG self.update(self.renderable + str(event.screen_x))
         y = self.offset_at_drag_start.y
         self.card_attributes(event.screen_x, y)
         event.stop()
@@ -156,15 +158,37 @@ class KanTouch(App):
             Label(" DONE ", id="done"),
             id="topbar",
         )
-        # FIXME Read tasks from Markdown from stdin
-        yield Draggable(" TASK 1     ", 1, col_width, total_status, segments)
-        yield Draggable(" TASK 2     ", 2, col_width, total_status, segments)
-        yield Draggable(" TASK 3     ", 3, col_width, total_status, segments)
-        yield Draggable(" TASK 4     ", 4, col_width, total_status, segments)
-        yield Draggable(" TASK 5     ", 3, col_width, total_status, segments)
+
+        for key, value in enumerate(cards):
+            yield Draggable(
+                str(cards[key][0]),
+                int(cards[key][1]),
+                col_width,
+                total_status,
+                segments,
+            )
+
         yield Footer()
 
 
 if __name__ == "__main__":
+
+    col = 0
+    cards = []
+
+    with open("tasks.md") as f:
+        lines = f.readlines()
+
+    for line in lines:
+        if re.match(r"^\#\# .*$", line):
+            col = col + 1
+        if re.match(r"^\- \#[0-9]+.*$", line):
+            task = re.sub(r"^\- ", "", line.rstrip())
+            if len(task) > 35:
+                task = task[:35] + "..."
+
+            if task:
+                cards.append([task, col])
+
     app = KanTouch()
     app.run()
