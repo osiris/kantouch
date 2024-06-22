@@ -2,24 +2,29 @@
 
 ## TODO
 
-- Read tasks from stdin
-- Write output Markdown
-- Read all CSS from external file
-- Write cards status in matrix
-- Show Markdown preview
+- #2 Write output Markdown
+- #4 Write cards status in matrix
+- #5 Show Markdown preview
+- #6 Add support for checkbox
+- #7 Add support for themes
 
 ## WIP
 
+- #3 Read tasks from stdin
+- #8 Parse Issue ID from task
+- #9 Read tasks from file
 - Add support for multiple cols
 - Define defaults colors
 - Support multiple columns
 
 ## HOLD
 
-- FIXME
+- #10 when using lines = sys.stdin.readlines() print trash when Drag Cards
 
 ## DONE
 
-- Draw Colums
+- #1 generate TUI to drag cards from a kanban board using the touch screen
 - Draw Cards
+- Draw Colums
 - Make Cards Draggable
+- Read all CSS from external file
