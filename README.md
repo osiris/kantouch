@@ -16,6 +16,10 @@ make run
 
 ~~~
 
+## Requirements
+
+- [textual](https://textual.textualize.io/)
+
 ## License
 
 _GNU General Public License, GPLv3._
